@@ -16,20 +16,29 @@ st.set_page_config(
 st.markdown("""
 <style>
     .main-header {
-        background: linear-gradient(135deg, #0E2F44 0%, #1E517B 100%);
+        background: linear-gradient(135deg, #8B0000 0%, #B71C1C 100%);
         color: white;
-        padding: 22px;
+        padding: 24px;
         border-radius: 12px;
         text-align: center;
         margin-bottom: 20px;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    }
+    .login-container {
+        max-width: 550px;
+        margin: 0 auto 30px auto;
+        padding: 28px;
+        background-color: #FFFFFF;
+        border: 2px solid #B71C1C;
+        border-radius: 14px;
+        box-shadow: 0 6px 16px rgba(183, 28, 28, 0.12);
     }
     .gas-card {
         border-radius: 10px;
-        padding: 15px;
+        padding: 12px;
         color: white;
-        margin-bottom: 15px;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        margin-bottom: 12px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.15);
     }
     .badge-count {
         background-color: #E53935;
@@ -69,11 +78,11 @@ st.markdown("""
         margin-bottom: 15px;
     }
     .cloud-sync-banner {
-        background-color: #E8F0FE;
-        border: 1px solid #4285F4;
+        background-color: #FFEBEE;
+        border: 1px solid #E57373;
         padding: 10px 15px;
         border-radius: 8px;
-        color: #1A73E8;
+        color: #B71C1C;
         font-weight: bold;
         margin-bottom: 15px;
         display: flex;
@@ -162,22 +171,6 @@ if "cart_filled" not in st.session_state:
 if "cart_empty" not in st.session_state: 
     st.session_state.cart_empty = []
 
-# APP HEADER ---
-st.markdown("""
-<div class="main-header">
-    <h1 style="margin:0;">🏭 N R TRADERS</h1>
-    <p style="margin:5px 0 0 0; font-size: 16px; opacity:0.9;">Industrial & Medical Gas Cylinders Ordering, Billing & Cloud Sync Portal</p>
-    <p style="margin:2px 0 0 0; font-size: 13px; opacity:0.75;">GSTIN: 09MHSPS5749H1Z3 | MSME: UDYAM-UP-29-0162343 | Google Drive Sync: Connected (nrtraders.gases@gmail.com)</p>
-</div>
-""", unsafe_allow_html=True)
-
-# GOOGLE DRIVE & SHEETS CLOUD SYNC BANNER ---
-st.markdown("""
-<div class="cloud-sync-banner">
-    ☁️ <b>Google Drive & Google Sheets Connected:</b> <code>nrtraders.gases@gmail.com</code> | Real-time Auto-Backup Active for Orders & Invoices!
-</div>
-""", unsafe_allow_html=True)
-
 # GAS SPECIFICATIONS & COLOUR CODES ---
 GAS_SPECS = { 
     "Oxygen (O2)": { 
@@ -185,152 +178,164 @@ GAS_SPECS = {
         "border_color": "#FFFFFF", 
         "neck_color": "⬜ White Neck", 
         "body_color": "⬛ Black Body", 
-        "text_color": "#FFFFFF", 
         "categories": ["Standard (7 m³)"], 
         "desc": "Industrial Metal Cutting, Welding & Medical Breath Support" 
     }, 
+    "Nitrogen (N2)": { 
+        "bg_color": "#455A64", 
+        "border_color": "#90A4AE", 
+        "neck_color": "⬛ Black Neck", 
+        "body_color": "🌫️ French Grey Body", 
+        "categories": ["Standard (7 m³)"], 
+        "desc": "Laser Cutting Inerting, Pressure Testing, Purging & Chemical Processing" 
+    },
     "Carbon Dioxide (CO2)": { 
         "bg_color": "#212121", 
         "border_color": "#757575", 
         "neck_color": "⬛ Black Neck", 
         "body_color": "⬛ Black Body", 
-        "text_color": "#FFFFFF", 
         "categories": ["Personalised 20kg", "Standard 30kg", "Commercial 45kg"], 
         "desc": "MIG Welding Shielding, Beverage Carbonation & Fire Fighting" 
     }, 
+    "Dissolved Acetylene (DA)": { 
+        "bg_color": "#5D4037", 
+        "border_color": "#8D6E63", 
+        "neck_color": "🟫 Brownish Red Neck", 
+        "body_color": "🟫 Brownish Red Body", 
+        "categories": ["Standard DA Cylinder"], 
+        "desc": "Oxy-Acetylene High-Temperature Heavy Metal Cutting & Brazing" 
+    },
     "Argon (Ar)": { 
         "bg_color": "#0D47A1", 
         "border_color": "#42A5F5", 
         "neck_color": "🟦 Navy Blue Neck", 
         "body_color": "🟦 Navy Blue Body", 
-        "text_color": "#FFFFFF", 
         "categories": ["7 cubic metres", "10 cubic metres"], 
         "desc": "TIG Welding Shielding, Stainless Steel Fabrication & Precision Alloys" 
     }, 
-    "Nitrogen (N2)": { 
-        "bg_color": "#78909C", 
-        "border_color": "#212121", 
-        "neck_color": "⬛ Black Neck", 
-        "body_color": "🌫️ French Grey Body", 
-        "text_color": "#FFFFFF", 
-        "categories": ["Standard (7 m³)"], 
-        "desc": "Laser Cutting Inerting, Pressure Testing, Purging & Chemical Processing" 
-    }, 
-    "Dissolved Acetylene (DA)": { 
-        "bg_color": "#8D6E63", 
-        "border_color": "#3E2723", 
-        "neck_color": "🟫 Brownish Red Neck", 
-        "body_color": "🟫 Brownish Red Body", 
-        "text_color": "#FFFFFF", 
-        "categories": ["Standard DA Cylinder"], 
-        "desc": "Oxy-Acetylene High-Temperature Heavy Metal Cutting & Brazing" 
-    }, 
     "Hydrogen (H2)": { 
-        "bg_color": "#D32F2F", 
+        "bg_color": "#B71C1C", 
         "border_color": "#FF8A80", 
         "neck_color": "🟥 Scarlet Red Neck", 
         "body_color": "🟥 Scarlet Red Body", 
-        "text_color": "#FFFFFF", 
         "categories": ["Standard (7 m³)"], 
         "desc": "High-Precision Cutting, Heat Treatment & Special Laboratory Atmospheres" 
     } 
 }
 
-# LOGIN / AUTHENTICATION SIDEBAR ---
-st.sidebar.markdown("### 🔐 User Login & Authentication")
-
-if st.session_state.logged_in_user is None: 
-    st.sidebar.info("Please login to access your confidential party dashboard.") 
-    
-    with st.sidebar.form("login_form"): 
-        login_id = st.text_input("User ID / Party ID:").strip().lower() 
-        login_pass = st.text_input("Password:", type="password") 
-        submit_login = st.form_submit_button("Login")
-
-    if submit_login:
-        if login_id in st.session_state.users_db and st.session_state.users_db[login_id]["password"] == login_pass:
-            st.session_state.logged_in_user = login_id
-            st.sidebar.success(f"Welcome, {st.session_state.users_db[login_id]['name']}!")
-            st.rerun()
-        else:
-            st.sidebar.error("❌ Invalid User ID or Password!")
-else: 
+# SIDEBAR: CONTACT INFO & GAS CYLINDER CATALOG ---
+if st.session_state.logged_in_user is not None:
     u_info = st.session_state.users_db[st.session_state.logged_in_user] 
     st.sidebar.success(f"Logged in as: {u_info['name']}") 
     st.sidebar.caption(f"Role: {u_info['role'].upper()} | Company: {u_info['company']}")
-
-    if st.sidebar.button("🚪 Logout"):
+    if st.sidebar.button("🚪 Logout", use_container_width=True):
         st.session_state.logged_in_user = None
         st.rerun()
+    st.sidebar.markdown("---")
 
-st.sidebar.markdown("---") 
 st.sidebar.markdown("### 🏢 N R TRADERS Contact Info") 
-st.sidebar.markdown("📞 Call: +91 9999734204") 
-st.sidebar.markdown("📞 Call: +91 8130853589") 
-st.sidebar.markdown("✉️ Email: nrtraders.gases@gmail.com") 
-st.sidebar.markdown("📍 Office & Godown: Duhai Industrial Area, Ghaziabad, UP") 
-st.sidebar.markdown("👤 Owner: Mr. Nitin Sharma")
+st.sidebar.markdown("📞 **Call:** +91 9999734204") 
+st.sidebar.markdown("📞 **Call:** +91 8130853589") 
+st.sidebar.markdown("✉️ **Email:** nrtraders.gases@gmail.com") 
+st.sidebar.markdown("📍 **Office & Godown:** Panchal Market, Duhai Industrial Area, Duhai, Ghaziabad, UP - 201206") 
+st.sidebar.markdown("👤 **Owner:** Mr. Nitin Sharma")
 
-# HOME PAGE & SHOWCASE (PUBLIC VIEW) ---
-if st.session_state.logged_in_user is None: 
-    st.subheader("🏭 Welcome to N R TRADERS - Industrial Gas Cylinder Catalog") 
-    st.markdown("Below are the official cylinder identification color codes and specs for gases supplied by N R TRADERS. Please login from the sidebar to place confidential orders and download tax invoices.")
+st.sidebar.markdown("---")
+st.sidebar.markdown("### 🛢️ Cylinder Catalog & Specs")
+for gas_name, spec in GAS_SPECS.items():
+    st.sidebar.markdown(f"""
+    <div class="gas-card" style="background-color: {spec['bg_color']}; border: 1px solid {spec['border_color']};">
+        <b style="font-size:14px;">🛢️ {gas_name}</b><br>
+        <span style="font-size:12px;">• Neck: {spec['neck_color']}<br>
+        • Body: {spec['body_color']}<br>
+        • Sizes: {', '.join(spec['categories'])}</span>
+    </div>
+    """, unsafe_allow_html=True)
+
+# MAIN APPLICATION DISPLAY ---
+if st.session_state.logged_in_user is None:
+    # PUBLIC VIEW / MAIN LANDING PAGE WITH CENTERED RED HEADER & LOGIN
+    st.markdown("""
+    <div class="main-header">
+        <h1 style="margin:0; font-size: 36px; letter-spacing: 1px;">🏭 N R TRADERS</h1>
+        <p style="margin:8px 0 4px 0; font-size: 17px; font-weight: 500;">Deals in: All Type of Oxygen, CO2, Nitrogen, Argon, DA & H2 Gas Cylinders</p>
+        <p style="margin:4px 0; font-size: 14px; opacity:0.95;">📍 Office & Godown: Panchal Market, Duhai Industrial Area, Duhai - 201206, Ghaziabad (U.P.)</p>
+        <p style="margin:2px 0 0 0; font-size: 13px; opacity:0.9;"><b>GSTIN:</b> 09MHSPS5749H1Z3 | <b>MSME Reg:</b> UDYAM-UP-29-0162343</p>
+    </div>
+    """, unsafe_allow_html=True)
+
+    st.markdown("""
+    <div class="cloud-sync-banner">
+        ☁️ <b>Google Drive & Google Sheets Connected:</b> <code>nrtraders.gases@gmail.com</code> | Real-time Auto-Backup Active
+    </div>
+    """, unsafe_allow_html=True)
+
+    # CENTERED LOGIN SECTION
+    col_l1, col_center, col_l2 = st.columns([1, 2, 1])
+    with col_center:
+        st.markdown("<h3 style='text-align: center; color: #8B0000;'>🔐 User Login & Authentication</h3>", unsafe_allow_html=True)
+        st.caption("<div style='text-align: center;'>Select your account role and enter credentials to access your private portal.</div>", unsafe_allow_html=True)
+        
+        with st.form("centered_login_form"):
+            login_role = st.selectbox("Account Role:", ["Party / Customer Login", "Admin / Owner Login"])
+            login_id = st.text_input("User ID / Party ID:").strip().lower()
+            login_pass = st.text_input("Password:", type="password")
+            submit_login = st.form_submit_button("🔑 Login to Portal", use_container_width=True)
+
+            if submit_login:
+                if login_id in st.session_state.users_db:
+                    user_record = st.session_state.users_db[login_id]
+                    expected_role = "admin" if login_role == "Admin / Owner Login" else "party"
+                    
+                    if user_record["role"] != expected_role:
+                        st.error(f"❌ Role mismatch: This account belongs to {user_record['role'].upper()}!")
+                    elif user_record["password"] == login_pass:
+                        st.session_state.logged_in_user = login_id
+                        st.success(f"Welcome, {user_record['name']}!")
+                        st.rerun()
+                    else:
+                        st.error("❌ Invalid Password!")
+                else:
+                    st.error("❌ User ID not found!")
 
     st.markdown("---")
-    c1, c2, c3 = st.columns(3)
-    cols = [c1, c2, c3]
+    st.info("🔒 **Confidentiality Notice:** Every party's orders, ledger, and tax invoices are strictly isolated and password-protected.")
 
-    for idx, (gas_name, spec) in enumerate(GAS_SPECS.items()):
-        with cols[idx % 3]:
-            st.markdown(f"""
-            <div class="gas-card" style="background-color: {spec['bg_color']}; border: 2px solid {spec['border_color']}; color: {spec['text_color']};">
-                <h3 style="margin:0;">🛢️ {gas_name}</h3>
-                <p style="margin:5px 0;"><b>Neck / Shoulder Color:</b> {spec['neck_color']}</p>
-                <p style="margin:5px 0;"><b>Cylinder Body Color:</b> {spec['body_color']}</p>
-                <p style="margin:5px 0;"><b>Available Sizes:</b> {', '.join(spec['categories'])}</p>
-                <hr style="margin:8px 0; border-color: rgba(255,255,255,0.2);">
-                <p style="margin:0; font-size:12px; opacity:0.9;"><i>{spec['desc']}</i></p>
-            </div>
-            """, unsafe_allow_html=True)
-            
-    st.markdown("---")
-    st.warning("🔒 **Confidentiality Notice:** Every party's orders, ledger, and tax invoices are password-protected and strictly isolated.")
+else:
+    # LOGGED IN VIEWS
+    st.markdown("""
+    <div class="main-header" style="padding: 16px;">
+        <h2 style="margin:0;">🏭 N R TRADERS - Portal</h2>
+        <p style="margin:3px 0 0 0; font-size: 13px; opacity:0.9;">GSTIN: 09MHSPS5749H1Z3 | Panchal Market, Duhai Industrial Area, Ghaziabad</p>
+    </div>
+    """, unsafe_allow_html=True)
 
-# =========================================================================
-# ONLY RUN PORTALS IF A USER IS LOGGED IN
-# =========================================================================
-if st.session_state.logged_in_user is not None:
-
-    # PORTAL 1: CUSTOMER / PARTY ORDERING PORTAL (LOGGED IN PARTY)
-    if st.session_state.users_db[st.session_state.logged_in_user]["role"] == "party": 
+    # PORTAL 1: PARTY / CUSTOMER
+    if st.session_state.users_db[st.session_state.logged_in_user]["role"] == "party":
         curr_user_id = st.session_state.logged_in_user 
         curr_user_info = st.session_state.users_db[curr_user_id]
 
-        # Filter party's private data
         party_bills = [b for b in st.session_state.bills if b.get("party_id") == curr_user_id or b.get("party_name") == curr_user_info["company"]]
         unread_bills_count = sum(1 for b in party_bills if b.get("unread", False))
         bill_tab_label = f"📄 View Bills & Download Invoices (🔴 {unread_bills_count} New)" if unread_bills_count > 0 else "📄 View Bills & Download Invoices"
 
         tab1, tab2, tab3 = st.tabs(["🛒 Place Cylinder Order", bill_tab_label, "📞 Help & Support"])
 
-        # TAB 1: ORDER CYLINDERS & DOWNLOAD ORDER BACKUP
         with tab1:
             st.subheader("📝 Order Gas Cylinders & Report Empty Cylinders")
             st.caption(f"Logged in Party: **{curr_user_info['company']}** | Data strictly private & auto-synced to Google Drive.")
             
             c_p1, c_p2 = st.columns(2)
             with c_p1:
-                party_name = st.text_input("🏢 Party / Customer Name:", value=curr_user_info["company"], disabled=True)
+                st.text_input("🏢 Party / Customer Name:", value=curr_user_info["company"], disabled=True)
             with c_p2:
                 party_address = st.text_input("📍 Delivery Address / Location:", value=curr_user_info.get("address", "Sahibabad / Ghaziabad"))
                 
             st.markdown("---")
             col_filled, col_empty = st.columns(2)
             
-            # --- FILLED CYLINDERS BUILDER ---
             with col_filled:
                 st.markdown("<div class='card-filled'><h3>🟢 FILLED CYLINDERS REQUIRED</h3><p>Select required gas type, size & quantity:</p></div>", unsafe_allow_html=True)
-                
                 fgas = st.selectbox("Select Gas Type (Filled):", list(GAS_SPECS.keys()), key="f_gas_sel")
                 fcat = st.selectbox("Select Category / Size:", GAS_SPECS[fgas]["categories"], key="f_cat_sel")
                 fqty = st.number_input("Enter Number of Cylinders:", min_value=1, max_value=500, value=5, step=1, key="f_qty_sel")
@@ -350,10 +355,8 @@ if st.session_state.logged_in_user is not None:
                         st.session_state.cart_filled = []
                         st.rerun()
 
-            # --- EMPTY CYLINDERS BUILDER ---
             with col_empty:
                 st.markdown("<div class='card-empty'><h3>🔴 EMPTY CYLINDERS AT SITE</h3><p>Report empty cylinders ready for pickup:</p></div>", unsafe_allow_html=True)
-                
                 egas = st.selectbox("Select Gas Type (Empty):", list(GAS_SPECS.keys()), key="e_gas_sel")
                 ecat = st.selectbox("Select Category / Size (Empty):", GAS_SPECS[egas]["categories"], key="e_cat_sel")
                 eqty = st.number_input("Enter Number of Empty Cylinders:", min_value=0, max_value=500, value=3, step=1, key="e_qty_sel")
@@ -374,8 +377,6 @@ if st.session_state.logged_in_user is not None:
                         st.rerun()
 
             st.markdown("---")
-            
-            # SUBMIT ORDER BUTTON
             if st.button("🚀 SUBMIT ORDER & SEND INSTANT ALERT TO N R TRADERS", type="primary", use_container_width=True):
                 if not st.session_state.cart_filled and not st.session_state.cart_empty:
                     st.error("Please add at least one filled cylinder or empty cylinder item before submitting!")
@@ -397,9 +398,8 @@ if st.session_state.logged_in_user is not None:
                     st.session_state.cart_empty = []
                     st.balloons()
                     st.success(f"✅ Order #{new_ord_id} Submitted Successfully!")
-                    st.info("📲 Instant alert sent to Mr. Nitin Sharma (+91 9999734204) via WiFi/SMS/WhatsApp. Auto-backed up to Google Drive (nrtraders.gases@gmail.com).")
+                    st.info("📲 Instant alert sent to Mr. Nitin Sharma (+91 9999734204). Auto-backed up to Google Drive.")
 
-            # PARTY ORDER HISTORY & BACKUP DOWNLOAD SECTION
             st.markdown("---")
             st.subheader("📋 Order History & Backup Download for Party")
             my_orders = [o for o in st.session_state.orders if o.get("party_id") == curr_user_id or o.get("party_name") == curr_user_info["company"]]
@@ -408,7 +408,6 @@ if st.session_state.logged_in_user is not None:
                 for ord_item in my_orders:
                     st.markdown(f"#### 📦 Order #{ord_item['order_id']} ({ord_item['timestamp']})")
                     st.markdown(f"**Status:** `{ord_item['status']}` | **Estimated Delivery Time:** `{ord_item['eta']}`")
-                    
                     b1, b2 = st.columns(2)
                     with b1:
                         if ord_item['filled_items']:
@@ -419,7 +418,6 @@ if st.session_state.logged_in_user is not None:
                             st.markdown("🔴 **Empty Cylinders:**")
                             st.dataframe(pd.DataFrame(ord_item['empty_items']), use_container_width=True)
                     
-                    # DOWNLOAD ORDER BACKUP / RECEIPT (CSV/JSON)
                     backup_data = json.dumps(ord_item, indent=2)
                     st.download_button(
                         label=f"📥 Download Order Backup Receipt (#{ord_item['order_id']})",
@@ -432,11 +430,9 @@ if st.session_state.logged_in_user is not None:
             else:
                 st.write("No previous orders found.")
 
-        # TAB 2: VIEW BILLS & DOWNLOAD INVOICES
         with tab2:
             st.subheader("📄 GST Tax Invoices & Download Ledger")
             st.caption("View and download official GST tax invoices issued by N R TRADERS.")
-            
             if party_bills:
                 for b_idx, bill in enumerate(party_bills):
                     if bill.get("unread", False):
@@ -444,7 +440,7 @@ if st.session_state.logged_in_user is not None:
                         
                     st.markdown(f"""
                     <div class="bill-box">
-                        <h3 style="margin:0; color:#0E2F44;">🧾 Tax Invoice #{bill['bill_no']}</h3>
+                        <h3 style="margin:0; color:#8B0000;">🧾 Tax Invoice #{bill['bill_no']}</h3>
                         <p style="margin:3px 0;"><b>Date:</b> {bill['date']} | <b>Billed To:</b> {bill['party_name']} | <b>Vehicle:</b> {bill['vehicle']}</p>
                         <p style="margin:3px 0; font-size: 18px;"><b>Grand Total Amount:</b> <span style="color:#2E7D32; font-weight:bold;">₹{bill['amount']:,.2f}</span></p>
                     </div>
@@ -460,11 +456,9 @@ if st.session_state.logged_in_user is not None:
                         mc2.metric("SGST (9%)", f"₹{bill['sgst']:,.2f}")
                         mc3.metric("Grand Total", f"₹{bill['amount']:,.2f}")
                         
-                        # DOWNLOAD TAX INVOICE
                         inv_df = pd.DataFrame(bill['items'])
                         csv_buffer = io.StringIO()
                         inv_df.to_csv(csv_buffer, index=False)
-                        
                         st.download_button(
                             label=f"📥 Download Tax Invoice Statement (#{bill['bill_no']})",
                             data=csv_buffer.getvalue(),
@@ -475,54 +469,42 @@ if st.session_state.logged_in_user is not None:
             else:
                 st.info("No tax invoices issued for your account yet.")
 
-        # TAB 3: HELP & SUPPORT
         with tab3:
             st.subheader("📞 Help & Support - N R TRADERS")
-            st.markdown("For urgent cylinder requirements, delivery updates, or ledger reconciliation, reach out to us:")
-            
             hc1, hc2 = st.columns(2)
             with hc1:
                 st.markdown("""
-                ### 📲 Official Contact Numbers
+                ### 📲 Contact Numbers
                 * **Call:** +91 9999734204
                 * **Call:** +91 8130853589
-                
-                ### ✉️ Official Email Address
                 * **Email:** nrtraders.gases@gmail.com
-                
-                ### 👤 Owner / Proprietor
-                * **Mr. Nitin Sharma**
+                * **Owner:** Mr. Nitin Sharma
                 """)
             with hc2:
                 st.markdown("""
                 ### 📍 Office & Godown Address
                 * **N R TRADERS**
-                * Duhai Industrial Area, Muradnagar / Panchal Market,
+                * Panchal Market, Duhai Industrial Area,
                 * Duhai, Ghaziabad, Uttar Pradesh - 201206
-                
-                ### 📄 Commercial Registration Details
                 * **GSTIN:** `09MHSPS5749H1Z3`
-                * **MSME Reg. No.:** `UDYAM-UP-29-0162343`
-                """) 
+                * **MSME Reg:** `UDYAM-UP-29-0162343`
+                """)
 
-    # PORTAL 2: N R TRADERS ADMIN & CRM DASHBOARD (OWNER VIEW)
-    elif st.session_state.users_db[st.session_state.logged_in_user]["role"] == "admin": 
-        st.subheader("⚙️ N R TRADERS Owner CRM & User Password Management Portal") 
-        st.markdown("Monitor party orders in real-time, accept orders with Estimated Delivery Time (ETA), manage party passwords, and sync with Google Drive.")
+    # PORTAL 2: ADMIN / OWNER VIEW
+    elif st.session_state.users_db[st.session_state.logged_in_user]["role"] == "admin":
+        st.subheader("⚙️ N R TRADERS Owner CRM & Dashboard") 
+        st.markdown("Monitor party orders in real-time, accept orders with Delivery ETA, manage party passwords, and sync data.")
 
         admin_tab1, admin_tab2, admin_tab3 = st.tabs(["📥 Live Orders Queue & ETA Confirmation", "📤 Upload Tax Invoice to Party CRM", "🔐 User Security & Password Management"])
 
-        # ADMIN TAB 1: LIVE ORDERS QUEUE
         with admin_tab1:
             pending_list = [o for o in st.session_state.orders if o["status"] == "Pending Confirmation"]
             if pending_list:
-                st.warning(f"🔔 **{len(pending_list)} NEW ORDER(S) RECEIVED!** Instant alert sent to Mr. Nitin Sharma via WiFi/Internet/SMS (+91 9999734204). Auto-synced to Google Drive.")
+                st.warning(f"🔔 **{len(pending_list)} NEW ORDER(S) RECEIVED!** Instant alert sent to Mr. Nitin Sharma (+91 9999734204). Auto-synced to Google Drive.")
 
             st.markdown("### 📥 Live Party Orders Queue")
-            
             for idx, ord_item in enumerate(st.session_state.orders):
                 st.markdown(f"#### 📦 Order #{ord_item['order_id']} - {ord_item['party_name']} ({ord_item['timestamp']})")
-                
                 ca, cb = st.columns(2)
                 with ca:
                     st.markdown("**🟢 FILLED CYLINDERS ORDERED:**")
@@ -530,7 +512,6 @@ if st.session_state.logged_in_user is not None:
                         st.dataframe(pd.DataFrame(ord_item["filled_items"]), use_container_width=True)
                     else:
                         st.write("None")
-                        
                 with cb:
                     st.markdown("**🔴 EMPTY CYLINDERS REPORTED AT SITE:**")
                     if ord_item["empty_items"]:
@@ -538,7 +519,6 @@ if st.session_state.logged_in_user is not None:
                     else:
                         st.write("None")
 
-                # ORDER ACCEPTANCE & ETA SETTING WORKFLOW
                 if ord_item["status"] == "Pending Confirmation":
                     st.markdown("**⚡ Order Action & Delivery ETA Confirmation:**")
                     e1, e2, e3 = st.columns([2, 2, 2])
@@ -560,14 +540,12 @@ if st.session_state.logged_in_user is not None:
                         st.session_state.orders[idx]["status"] = "Accepted"
                         st.session_state.orders[idx]["eta"] = final_eta_val
                         st.session_state.orders[idx]["vehicle"] = assigned_vehicle_val
-                        st.success(f"Order #{ord_item['order_id']} Accepted! Confirmation sent to party interface with Estimated Delivery Time: {final_eta_val}.")
+                        st.success(f"Order #{ord_item['order_id']} Accepted with ETA: {final_eta_val}!")
                         st.rerun()
                 else:
                     st.markdown(f"<div class='status-confirmed'>✅ Accepted & Confirmed | Estimated Delivery Time: {ord_item['eta']} | Vehicle: {ord_item['vehicle']}</div>", unsafe_allow_html=True)
-                    
                 st.markdown("---")
 
-        # ADMIN TAB 2: UPLOAD BILLS
         with admin_tab2:
             st.markdown("### 📤 Upload GST Invoice to Party View Bills CRM")
             with st.form("crm_upload_invoice_form"):
@@ -595,12 +573,11 @@ if st.session_state.logged_in_user is not None:
                         "vehicle": u_veh
                     }
                     st.session_state.bills.insert(0, new_bill)
-                    st.success(f"Invoice #{u_inv_no} uploaded for {party_comp_name}! Party will receive a notification badge on their app.")
+                    st.success(f"Invoice #{u_inv_no} uploaded for {party_comp_name}!")
 
-        # ADMIN TAB 3: USER SECURITY & PASSWORDS CONTROL PANEL
         with admin_tab3:
             st.markdown("### 🔐 User Security & Password Management")
-            st.caption("Manage party accounts, set custom passwords, or update your own Admin password.")
+            st.caption("Manage party accounts, set custom passwords, or register new parties.")
             
             st.markdown("#### ➕ Create New Party Account")
             with st.form("create_user_form"):
@@ -628,7 +605,6 @@ if st.session_state.logged_in_user is not None:
 
             st.markdown("---")
             st.markdown("#### 📋 Registered Accounts & Active Passwords Ledger")
-            
             user_list_data = []
             for uid, udata in st.session_state.users_db.items():
                 user_list_data.append({
