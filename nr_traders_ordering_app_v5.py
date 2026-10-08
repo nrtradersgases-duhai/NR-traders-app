@@ -243,7 +243,7 @@ st.sidebar.markdown("### ðŸ” User Login & Authentication")
 if st.session_state.logged_in_user is None: 
     st.sidebar.info("Please login to access your confidential party dashboard.") 
 with st.sidebar.form("login_form"): 
-login_id = st.text_input("User ID / Party ID:").strip().lower() 
+    login_id = st.text_input("User ID / Party ID:").strip().lower() 
 login_pass = st.text_input("Password:", type="password") 
 submit_login = st.form_submit_button("ðŸ”“ Login")
 
@@ -567,8 +567,8 @@ st.warning("ðŸ”’ **Confidentiality Notice:** Every party's orders, ledger,
 PORTAL 1: CUSTOMER / PARTY ORDERING PORTAL (LOGGED IN PARTY)
 
 elif st.session_state.users_db[st.session_state.logged_in_user]["role"]  "party": 
-curr_user_id = st.session_state.logged_in_user 
-curr_user_info = st.session_state.users_db[curr_user_id]
+    curr_user_id = st.session_state.logged_in_user 
+    curr_user_info = st.session_state.users_db[curr_user_id]
 
 # Filter party's private data
 party_bills = [b for b in st.session_state.bills if b.get("party_id") == curr_user_id or b.get("party_name") == curr_user_info["company"]]
