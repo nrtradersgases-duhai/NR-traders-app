@@ -774,13 +774,13 @@ with tab3:
         ### ðŸ“„ Commercial Registration Details
         * **GSTIN:** `09MHSPS5749H1Z3`
         * **MSME Reg. No.:** `UDYAM-UP-29-0162343`
-        """)
+        """) 
 
 # PORTAL 2: N R TRADERS ADMIN & CRM DASHBOARD (OWNER VIEW)
 
-elif st.session_state.users_db[st.session_state.logged_in_user]["role"]  "admin": 
-st.subheader("âš™ï¸ N R TRADERS Owner CRM & User Password Management Portal") 
-st.markdown("Monitor party orders in real-time, accept orders with Estimated Delivery Time (ETA), manage party passwords, and sync with Google Drive.")
+if st.session_state.users_db[st.session_state.logged_in_user]["role"] == "admin": 
+    st.subheader("âš™ï¸ N R TRADERS Owner CRM & User Password Management Portal") 
+    st.markdown("Monitor party orders in real-time, accept orders with Estimated Delivery Time (ETA), manage party passwords, and sync with Google Drive.")
 
 admin_tab1, admin_tab2, admin_tab3 = st.tabs(["ðŸ“¥ Live Orders Queue & ETA Confirmation", "ðŸ“¤ Upload Tax Invoice to Party CRM", "ðŸ” User Security & Password Management"])
 
