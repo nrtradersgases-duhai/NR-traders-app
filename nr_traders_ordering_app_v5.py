@@ -4,7 +4,7 @@ import datetime
 import io 
 import json
 
---- PAGE CONFIGURATION ---
+# PAGE CONFIGURATION ---
 st.set_page_config( 
 page_title="N R TRADERS - Gas Ordering & CRM", 
 page_icon="ðŸ›¢ï¸", 
@@ -12,7 +12,7 @@ layout="wide",
 initial_sidebar_state="expanded" 
 )
 
---- CUSTOM CSS STYLING ---
+# CUSTOM CSS STYLING ---
 st.markdown("""
 <style>
     .main-header {
@@ -84,7 +84,7 @@ st.markdown("""
 
 """, unsafe_allow_html=True)
 
---- USER DATABASE (CUSTOM PASSWORDS FOR ADMIN & PARTIES) ---
+# USER DATABASE (CUSTOM PASSWORDS FOR ADMIN & PARTIES) ---
 if "users_db" not in st.session_state: 
 st.session_state.users_db = { 
 "admin": { 
@@ -109,7 +109,7 @@ st.session_state.users_db = {
 } 
 }
 
---- INITIAL SESSION STATE DATA ---
+# INITIAL SESSION STATE DATA ---
 if "logged_in_user" not in st.session_state: 
 st.session_state.logged_in_user = None
 
@@ -163,7 +163,7 @@ st.session_state.cart_filled = []
 if "cart_empty" not in st.session_state: 
 st.session_state.cart_empty = []
 
---- APP HEADER ---
+# APP HEADER ---
 st.markdown("""
 <div class="main-header">
     <h1 style="margin:0;">ðŸ›¢ï¸ N R TRADERS</h1>
@@ -172,14 +172,14 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
---- GOOGLE DRIVE & SHEETS CLOUD SYNC BANNER ---
+# GOOGLE DRIVE & SHEETS CLOUD SYNC BANNER ---
 st.markdown("""
 <div class="cloud-sync-banner">
     â˜ï¸ <b>Google Drive & Google Sheets Connected:</b> <code>nrtraders.gases@gmail.com</code> | Real-time Auto-Backup Active for Orders & Invoices!
 </div>
 """, unsafe_allow_html=True)
 
---- GAS SPECIFICATIONS & COLOUR CODES ---
+# GAS SPECIFICATIONS & COLOUR CODES ---
 GAS_SPECS = { 
 "Oxygen (O2)": { 
 "bg_color": "#1A1A1A", 
@@ -237,7 +237,7 @@ GAS_SPECS = {
 } 
 }
 
---- LOGIN / AUTHENTICATION SIDEBAR ---
+# LOGIN / AUTHENTICATION SIDEBAR ---
 st.sidebar.markdown("### ðŸ” User Login & Authentication")
 
 if st.session_state.logged_in_user is None: 
@@ -539,7 +539,7 @@ st.sidebar.markdown("âœ‰ï¸ Email: nrtraders.gases@gmail.com")
 st.sidebar.markdown("ðŸ“ Office & Godown: Duhai Industrial Area, Ghaziabad, UP") 
 st.sidebar.markdown("ðŸ‘¤ Owner: Mr. Nitin Sharma")
 
---- HOME PAGE & SHOWCASE (PUBLIC VIEW) ---
+# HOME PAGE & SHOWCASE (PUBLIC VIEW) ---
 if st.session_state.logged_in_user is None: 
 st.subheader("ðŸŽ¨ Welcome to N R TRADERS - Industrial Gas Cylinder Catalog") 
 st.markdown("Below are the official cylinder identification color codes and specs for gases supplied by N R TRADERS. Please login from the sidebar to place confidential orders and download tax invoices.")
