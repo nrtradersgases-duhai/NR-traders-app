@@ -111,13 +111,13 @@ if "users_db" not in st.session_state:
 
 # INITIAL SESSION STATE DATA ---
 if "logged_in_user" not in st.session_state: 
-st.session_state.logged_in_user = None
+    st.session_state.logged_in_user = None
 
 if "google_drive_synced" not in st.session_state: 
-st.session_state.google_drive_synced = True
+    st.session_state.google_drive_synced = True
 
 if "orders" not in st.session_state: 
-st.session_state.orders = [ 
+    st.session_state.orders = [ 
 { 
 "order_id": "NRT-ORD-2026-101", 
 "party_id": "ar_fabtech", 
@@ -138,7 +138,7 @@ st.session_state.orders = [
 ]
 
 if "bills" not in st.session_state: 
-st.session_state.bills = [ 
+    st.session_state.bills = [ 
 { 
 "bill_no": "2026-27/161", 
 "party_id": "shree_ji", 
@@ -158,10 +158,10 @@ st.session_state.bills = [
 ]
 
 if "cart_filled" not in st.session_state: 
-st.session_state.cart_filled = []
+    st.session_state.cart_filled = []
 
 if "cart_empty" not in st.session_state: 
-st.session_state.cart_empty = []
+    st.session_state.cart_empty = []
 
 # APP HEADER ---
 st.markdown("""
@@ -241,7 +241,7 @@ GAS_SPECS = {
 st.sidebar.markdown("### ðŸ” User Login & Authentication")
 
 if st.session_state.logged_in_user is None: 
-st.sidebar.info("Please login to access your confidential party dashboard.") 
+    st.sidebar.info("Please login to access your confidential party dashboard.") 
 with st.sidebar.form("login_form"): 
 login_id = st.text_input("User ID / Party ID:").strip().lower() 
 login_pass = st.text_input("Password:", type="password") 
@@ -255,9 +255,9 @@ submit_login = st.form_submit_button("ðŸ”“ Login")
         else:
             st.sidebar.error("âŒ Invalid User ID or Password!")
 else: 
-u_info = st.session_state.users_db[st.session_state.logged_in_user] 
-st.sidebar.success(f"Logged in as: {u_info['name']}") 
-st.sidebar.caption(f"Role: {u_info['role'].upper()} | Company: {u_info['company']}")
+    u_info = st.session_state.users_db[st.session_state.logged_in_user] 
+    st.sidebar.success(f"Logged in as: {u_info['name']}") 
+    st.sidebar.caption(f"Role: {u_info['role'].upper()} | Company: {u_info['company']}")
 
 if st.sidebar.button("ðŸšª Logout"):
     st.session_state.logged_in_user = None
@@ -541,7 +541,7 @@ st.sidebar.markdown("ðŸ‘¤ Owner: Mr. Nitin Sharma")
 
 # HOME PAGE & SHOWCASE (PUBLIC VIEW) ---
 if st.session_state.logged_in_user is None: 
-st.subheader("ðŸŽ¨ Welcome to N R TRADERS - Industrial Gas Cylinder Catalog") 
+    st.subheader("ðŸŽ¨ Welcome to N R TRADERS - Industrial Gas Cylinder Catalog") 
 st.markdown("Below are the official cylinder identification color codes and specs for gases supplied by N R TRADERS. Please login from the sidebar to place confidential orders and download tax invoices.")
 
 st.markdown("---")
