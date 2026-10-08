@@ -86,7 +86,7 @@ st.markdown("""
 
 # USER DATABASE (CUSTOM PASSWORDS FOR ADMIN & PARTIES) ---
 if "users_db" not in st.session_state: 
-st.session_state.users_db = { 
+    st.session_state.users_db = { 
 "admin": { 
 "password": "admin123", 
 "role": "admin", 
