@@ -1,238 +1,333 @@
-import streamlit as st
-import pandas as pd
-import datetime
-import json
-import os
-import base64
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>N R TRADERS - Client Portal</title>
+    <style>
+        /* Professional Business Theme */
+        :root {
+            --primary-blue: #0A3D62;
+            --payment-green: #218C74;
+            --bg-color: #F4F7F6;
+            --text-dark: #2F3542;
+            --white: #FFFFFF;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-dark);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        /* Login Screen */
+        #login-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex-grow: 1;
+        }
+        .login-box {
+            background: var(--white);
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+        .login-box input, .login-box select {
+            width: 90%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .btn {
+            background-color: var(--primary-blue);
+            color: var(--white);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s;
+        }
+        .btn:hover { background-color: #062b47; }
+        
+        /* Dashboard & Navigation */
+        #dashboard { display: none; width: 100%; }
+        .top-nav {
+            background-color: var(--primary-blue);
+            color: var(--white);
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .notification-icon {
+            position: relative;
+            cursor: pointer;
+            font-size: 24px;
+        }
+        .badge {
+            position: absolute;
+            top: -5px;
+            right: -10px;
+            background-color: red;
+            color: white;
+            border-radius: 50%;
+            padding: 2px 6px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        /* Content Area */
+        .content { padding: 20px; max-width: 1200px; margin: 0 auto; }
+        
+        /* Prominent Payment Box */
+        .payment-highlight-box {
+            background-color: var(--payment-green);
+            color: var(--white);
+            padding: 30px;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(33, 140, 116, 0.4);
+            transition: transform 0.2s;
+        }
+        .payment-highlight-box:active { transform: scale(0.98); }
+        .payment-highlight-box h2 { margin: 0; font-size: 24px; }
+        .payment-highlight-box p { margin: 10px 0 0 0; font-size: 14px; opacity: 0.9; }
 
-# --- CONFIGURATION ---
-st.set_page_config(page_title="N.R. TRADERS - CRM", page_icon="🏭", layout="wide")
+        /* Payment Details Section */
+        #payment-details-view {
+            display: none;
+            background: var(--white);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-top: 20px;
+            border-left: 5px solid var(--payment-green);
+        }
+        .qr-container { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; }
+        .qr-box { text-align: center; border: 1px solid #eee; padding: 10px; border-radius: 8px; }
+        .qr-box img { max-width: 200px; height: auto; }
+        
+        /* Admin Bank Edit Section */
+        #admin-bank-section {
+            display: none;
+            background: #fff3cd;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+            border-left: 5px solid #ffc107;
+        }
 
-# --- DATABASE FILES (Local Fallback for Testing) ---
-# Jab aap Google Cloud Service Account bana lenge, toh inko Gspread (Google Sheets) se replace kar sakte hain.
-USERS_FILE = "nrt_users.json"
-ORDERS_FILE = "nrt_orders.json"
-BILLS_FILE = "nrt_bills.json"
+        /* PWA Install Prompts */
+        .install-prompt {
+            background: #e1f5fe;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 8px;
+            text-align: center;
+            display: none;
+        }
 
-DEFAULT_USERS = {
-    "admin": {
-        "password": "admin",
-        "role": "admin",
-        "name": "Nitin Sharma",
-        "company": "N.R. TRADERS",
-        "gst": "09MHSPS5749H1Z3",
-        "address": "Panchal Market, Duhai industrial area, Duhai"
-    }
-}
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 20px;
+            font-size: 12px;
+            color: #7f8fa6;
+            margin-top: auto;
+        }
+        .legal-terms { font-size: 10px; margin-top: 10px; }
+    </style>
+</head>
+<body>
 
-def load_data(file_path, default_data):
-    if os.path.exists(file_path):
-        try:
-            with open(file_path, "r", encoding="utf-8") as f: return json.load(f)
-        except: return default_data
-    return default_data
+    <!-- Notification Sound -->
+    <audio id="notif-sound" src="data:audio/wav;base64,UklGRl9vT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YU..." preload="auto"></audio>
 
-def save_data(file_path, data):
-    with open(file_path, "w", encoding="utf-8") as f:
-        json.dump(data, f, indent=4)
-
-if "users_db" not in st.session_state: st.session_state.users_db = load_data(USERS_FILE, DEFAULT_USERS)
-if "orders" not in st.session_state: st.session_state.orders = load_data(ORDERS_FILE, [])
-if "bills" not in st.session_state: st.session_state.bills = load_data(BILLS_FILE, [])
-
-# --- NOTIFICATION SOUND ---
-def play_sound():
-    # Ek simple default notification beep sound
-    sound_html = """
-    <audio autoplay="true">
-        <source src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3" type="audio/mpeg">
-    </audio>
-    """
-    st.markdown(sound_html, unsafe_allow_html=True)
-
-# --- CSS STYLING ---
-st.markdown("""
-<style>
-    .header-banner { background: #b71c1c; color: white; padding: 20px; text-align: center; border-radius: 8px; margin-bottom: 20px; }
-    .footer { position: fixed; left: 0; bottom: 0; width: 100%; background-color: #f1f1f1; color: #333; text-align: center; padding: 10px; font-size: 12px; font-weight: bold; }
-    .v-card { background: white; border: 2px solid #b71c1c; border-radius: 5px; padding: 15px; text-align: center; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
-    .v-card h3 { color: #b71c1c; margin: 0; font-family: Arial Black; }
-    .v-card p { font-size: 12px; margin: 5px 0; color: #333; }
-    .v-card .contact { font-weight: bold; color: #b71c1c; font-size: 14px; margin-top: 10px; }
-</style>
-""", unsafe_allow_html=True)
-
-# --- VIRTUAL CARD ---
-def show_virtual_card():
-    st.sidebar.markdown("""
-    <div class="v-card">
-        <h3>N.R. TRADERS</h3>
-        <p><b>Deals In:</b> All Type Of Oxygen, Co2, Nitrogen<br>Argon, Da Gas Cylinder & Welding Material</p>
-        <hr style="margin:10px 0;">
-        <p><b>Address:</b> Panchal Market, Duhai industrial area, Duhai, Ghaziabad (U.P.)</p>
-        <div class="contact">
-            Nitin Sharma<br>
-            📞 9999734204 | 8130853589
+    <!-- Login Screen -->
+    <div id="login-screen">
+        <div class="login-box">
+            <h2>N R TRADERS Portal</h2>
+            <p style="color: #666; font-size: 14px;">Secure Portal Login</p>
+            <select id="user-role">
+                <option value="billing">Billing Customer</option>
+                <option value="cash">Cash Customer</option>
+                <option value="admin">Admin</option>
+            </select>
+            <button class="btn" onclick="processLogin()">Secure Login</button>
+        </div>
+        
+        <div class="footer">
+            <strong>Made with Love for their exclusive customers by N R TRADERS</strong>
+            <div class="legal-terms">
+                Licensed under the Apache License, Version 2.0<br>
+                You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+            </div>
         </div>
     </div>
-    """, unsafe_allow_html=True)
 
-# --- APP BANNER ---
-st.markdown("""
-<div class="header-banner">
-    <h1 style="margin:0;">N.R. TRADERS - OFFICIAL PORTAL</h1>
-    <p style="margin:0;">GSTIN: 09MHSPS5749H1Z3 | Authorized Dealer & Supplier</p>
-</div>
-""", unsafe_allow_html=True)
+    <!-- Main Dashboard -->
+    <div id="dashboard">
+        <div class="top-nav">
+            <div>N R TRADERS Dashboard</div>
+            <div class="notification-icon" onclick="playNotification()">
+                🔔 <span class="badge" id="notif-badge">1</span>
+            </div>
+        </div>
 
-# --- LOGIN SYSTEM ---
-if "user" not in st.session_state:
-    show_virtual_card()
-    st.sidebar.subheader("🔐 Secure Login")
-    user_id = st.sidebar.text_input("User ID")
-    password = st.sidebar.text_input("Password", type="password")
-    if st.sidebar.button("Login"):
-        if user_id in st.session_state.users_db and st.session_state.users_db[user_id]["password"] == password:
-            st.session_state.user = user_id
-            st.rerun()
-        else:
-            st.sidebar.error("❌ Invalid ID or Password")
-else:
-    role = st.session_state.users_db[st.session_state.user]["role"]
-    show_virtual_card()
-    st.sidebar.success(f"Logged in as: {st.session_state.users_db[st.session_state.user]['name']}")
-    if st.sidebar.button("🔄 Refresh Data"):
-        st.rerun()
-    if st.sidebar.button("🚪 Logout"):
-        del st.session_state.user
-        st.rerun()
+        <div class="content">
+            <!-- PWA Install Prompts -->
+            <div id="android-install" class="install-prompt">
+                <p>Install our Web App for a seamless experience.</p>
+                <button class="btn" id="install-btn">Download App</button>
+            </div>
+            <div id="ios-install" class="install-prompt">
+                <p>To install on iOS: Tap the <strong>Share</strong> icon below and select <strong>'Add to Home Screen'</strong>.</p>
+            </div>
 
-    # ================= PARTY (CLIENT) DASHBOARD =================
-    if role == "party":
-        tab1, tab2 = st.tabs(["🛒 Place Order", "📄 View Bills/Challans"])
-        
-        with tab1:
-            st.subheader("Place New Order")
-            gas_type = st.selectbox("Select Gas", ["Oxygen (O2)", "Carbon Dioxide (CO2)", "Argon (Ar)", "Nitrogen (N2)"])
-            qty = st.number_input("Quantity", min_value=1, value=1)
-            
-            if st.button("🚀 Confirm Order"):
-                new_order = {
-                    "id": f"ORD{len(st.session_state.orders)+100}",
-                    "party": st.session_state.user,
-                    "company": st.session_state.users_db[st.session_state.user]["company"],
-                    "gas": gas_type,
-                    "qty": qty,
-                    "time": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                    "status": "Pending",
-                    "eta": "Awaiting"
-                }
-                st.session_state.orders.insert(0, new_order)
-                save_data(ORDERS_FILE, st.session_state.orders)
-                play_sound()
-                st.success("✅ Order Placed Successfully")
+            <!-- Prominent Payment Action Box -->
+            <div class="payment-highlight-box" onclick="togglePaymentDetails()">
+                <h2>Initiate Payment</h2>
+                <p>Click here to view your secure payment options</p>
+            </div>
+
+            <!-- Dynamic Payment Details -->
+            <div id="payment-details-view">
+                <h3 style="margin-top:0;">Payment Information</h3>
                 
-            st.markdown("---")
-            st.subheader("Your Recent Orders (1-Min Cancellation)")
-            for idx, ord_item in enumerate(st.session_state.orders):
-                if ord_item["party"] == st.session_state.user:
-                    st.write(f"**{ord_item['id']}** | {ord_item['gas']} (Qty: {ord_item['qty']}) | Status: {ord_item['status']} | ETA: {ord_item['eta']}")
-                    
-                    if ord_item["status"] == "Pending":
-                        time_diff = (datetime.datetime.now() - datetime.datetime.strptime(ord_item["time"], "%Y-%m-%d %H:%M:%S")).total_seconds()
-                        if time_diff <= 60:
-                            if st.button("❌ Cancel Order", key=f"cancel_{ord_item['id']}"):
-                                st.session_state.orders.pop(idx)
-                                save_data(ORDERS_FILE, st.session_state.orders)
-                                st.rerun()
-                        else:
-                            st.caption("Cancellation window (1 min) closed.")
-                    st.divider()
+                <!-- View for Billing Customers -->
+                <div id="billing-view" style="display:none;">
+                    <h4>Current Account Details</h4>
+                    <p><strong>Bank Name:</strong> <span id="display-bank">HDFC BANK, RAJENDER NAGAR</span></p>
+                    <p><strong>Account No:</strong> <span id="display-acc">50200099034568</span></p>
+                    <p><strong>IFSC Code:</strong> <span id="display-ifsc">HDFC0001266</span></p>
+                    <p><strong>Account Holder:</strong> <span id="display-name">N R TRADERS</span></p>
+                </div>
 
-        with tab2:
-            st.subheader("Your Invoices & Challans")
-            for bill in st.session_state.bills:
-                if bill["party"] == st.session_state.user:
-                    st.info(f"📄 Document: {bill['filename']} (Uploaded: {bill['date']})")
+                <!-- View for Cash Customers -->
+                <div id="cash-view" style="display:none;">
+                    <h4>UPI & Barcode Scanning</h4>
+                    <div class="qr-container">
+                        <div class="qr-box">
+                            <p><strong>Paytm Business</strong><br>Receiver: N R TRADERS</p>
+                            <img src="image.png" alt="Business QR - N R Traders">
+                        </div>
+                        <div class="qr-box">
+                            <p><strong>UPI / IDFC First Bank</strong><br>Receiver: Nitin Sharma</p>
+                            <img src="image_2.png" alt="Savings QR - Nitin Sharma">
+                            <p style="font-size:12px; color:#555;">UPI ID: nitin.sharma@upi</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-    # ================= ADMIN DASHBOARD =================
-    elif role == "admin":
-        tab1, tab2, tab3 = st.tabs(["📥 Live Orders", "📤 Upload Bills", "👥 Manage Clients"])
+            <!-- Admin Only Section -->
+            <div id="admin-bank-section">
+                <h3>Admin: Manage Bank Details</h3>
+                <label>Bank Name:</label>
+                <input type="text" id="edit-bank" value="HDFC BANK, RAJENDER NAGAR" style="width:100%; padding:8px; margin-bottom:10px;">
+                <label>Account Number:</label>
+                <input type="text" id="edit-acc" value="50200099034568" style="width:100%; padding:8px; margin-bottom:10px;">
+                <label>IFSC Code:</label>
+                <input type="text" id="edit-ifsc" value="HDFC0001266" style="width:100%; padding:8px; margin-bottom:10px;">
+                <button class="btn" onclick="updateBankDetails()" style="background-color: #d32f2f;">Update Bank Details</button>
+            </div>
+            
+            <button class="btn" onclick="logout()" style="margin-top: 40px; background-color:#7f8fa6;">Logout</button>
+        </div>
         
-        with tab1:
-            st.subheader("Live Order Management")
-            for idx, ord_item in enumerate(st.session_state.orders):
-                st.markdown(f"**{ord_item['company']}** ordered **{ord_item['qty']}x {ord_item['gas']}** at {ord_item['time']}")
-                
-                if ord_item["status"] == "Pending":
-                    col1, col2, col3 = st.columns(3)
-                    with col1:
-                        eta = st.text_input("ETA (e.g., 2 Hours / 4 PM)", key=f"eta_{ord_item['id']}")
-                    with col2:
-                        if st.button("✅ Accept", key=f"acc_{ord_item['id']}"):
-                            st.session_state.orders[idx]["status"] = "Accepted"
-                            st.session_state.orders[idx]["eta"] = eta if eta else "ASAP"
-                            save_data(ORDERS_FILE, st.session_state.orders)
-                            play_sound()
-                            st.rerun()
-                    with col3:
-                        if st.button("🗑️ Delete", key=f"del_{ord_item['id']}"):
-                            st.session_state.orders.pop(idx)
-                            save_data(ORDERS_FILE, st.session_state.orders)
-                            st.rerun()
-                else:
-                    st.success(f"Status: {ord_item['status']} | ETA: {ord_item['eta']}")
-                st.divider()
+        <div class="footer">
+            <strong>Made with Love for their exclusive customers by N R TRADERS</strong>
+            <div class="legal-terms">Apache 2.0 Licensed</div>
+        </div>
+    </div>
 
-        with tab2:
-            st.subheader("Upload Challans & Bills")
-            parties = {k: v["company"] for k, v in st.session_state.users_db.items() if v["role"] == "party"}
-            selected_party = st.selectbox("Select Party", list(parties.keys()), format_func=lambda x: parties[x])
+    <script>
+        let currentUserRole = '';
+
+        // Professional Login Transition
+        function processLogin() {
+            currentUserRole = document.getElementById('user-role').value;
+            document.getElementById('login-screen').style.display = 'none';
+            document.getElementById('dashboard').style.display = 'block';
+            setupDashboard();
+            detectDeviceForPWA();
+        }
+
+        // Setup Dashboard based on Role
+        function setupDashboard() {
+            document.getElementById('billing-view').style.display = 'none';
+            document.getElementById('cash-view').style.display = 'none';
+            document.getElementById('admin-bank-section').style.display = 'none';
+            document.getElementById('payment-details-view').style.display = 'none';
+
+            if (currentUserRole === 'admin') {
+                document.getElementById('admin-bank-section').style.display = 'block';
+                document.getElementById('billing-view').style.display = 'block'; 
+            } else if (currentUserRole === 'billing') {
+                document.getElementById('billing-view').style.display = 'block';
+            } else if (currentUserRole === 'cash') {
+                document.getElementById('cash-view').style.display = 'block';
+            }
+        }
+
+        // Toggle Payment Details Box 
+        function togglePaymentDetails() {
+            const detailsView = document.getElementById('payment-details-view');
+            if (detailsView.style.display === 'none' || detailsView.style.display === '') {
+                detailsView.style.display = 'block';
+            } else {
+                detailsView.style.display = 'none';
+            }
+        }
+
+        // Admin Function: Edit Bank Details
+        function updateBankDetails() {
+            const newBank = document.getElementById('edit-bank').value;
+            const newAcc = document.getElementById('edit-acc').value;
+            const newIfsc = document.getElementById('edit-ifsc').value;
+
+            document.getElementById('display-bank').innerText = newBank;
+            document.getElementById('display-acc').innerText = newAcc;
+            document.getElementById('display-ifsc').innerText = newIfsc;
             
-            uploaded_file = st.file_uploader("Upload File", type=['pdf', 'png', 'jpg', 'jpeg', 'docx', 'xlsx', 'txt'])
-            if uploaded_file is not None:
-                if st.button("Upload to Portal"):
-                    # Abhi JSON me save kar rahe hain (Drive me save karne ke liye Drive API upload logic lagega)
-                    st.session_state.bills.append({
-                        "party": selected_party,
-                        "filename": uploaded_file.name,
-                        "date": datetime.datetime.now().strftime("%Y-%m-%d")
-                    })
-                    save_data(BILLS_FILE, st.session_state.bills)
-                    st.success(f"✅ {uploaded_file.name} uploaded for {parties[selected_party]}")
+            alert('Bank details updated successfully.');
+        }
 
-        with tab3:
-            st.subheader("Client Directory")
-            action = st.radio("Action", ["Add New", "Edit Existing"])
+        // Notification Sound Logic
+        function playNotification() {
+            const audio = document.getElementById('notif-sound');
+            audio.play().catch(e => console.log("Audio play requires interaction first."));
+            document.getElementById('notif-badge').style.display = 'none';
+        }
+
+        // Device Detection for PWA Prompts 
+        function detectDeviceForPWA() {
+            const userAgent = window.navigator.userAgent.toLowerCase();
+            const isIOS = /iphone|ipad|ipod/.test(userAgent);
             
-            if action == "Add New":
-                nid = st.text_input("New User ID")
-                npass = st.text_input("Password")
-                ncomp = st.text_input("Company Name")
-                ngst = st.text_input("GST Number")
-                if st.button("Add Client") and nid:
-                    st.session_state.users_db[nid] = {"password": npass, "role": "party", "name": ncomp, "company": ncomp, "gst": ngst}
-                    save_data(USERS_FILE, st.session_state.users_db)
-                    st.success("Client Added!")
-                    st.rerun()
-                    
-            elif action == "Edit Existing":
-                parties = [k for k, v in st.session_state.users_db.items() if v["role"] == "party"]
-                if parties:
-                    edit_id = st.selectbox("Select Client to Edit", parties)
-                    e_comp = st.text_input("Company Name", value=st.session_state.users_db[edit_id]["company"])
-                    e_gst = st.text_input("GST Number", value=st.session_state.users_db[edit_id].get("gst", ""))
-                    e_pass = st.text_input("Password", value=st.session_state.users_db[edit_id]["password"])
-                    
-                    if st.button("Update Details"):
-                        st.session_state.users_db[edit_id].update({"company": e_comp, "name": e_comp, "gst": e_gst, "password": e_pass})
-                        save_data(USERS_FILE, st.session_state.users_db)
-                        st.success("Details Updated!")
-                        st.rerun()
+            if (isIOS) {
+                document.getElementById('ios-install').style.display = 'block';
+            } else {
+                document.getElementById('android-install').style.display = 'block';
+            }
+        }
 
-# --- FOOTER ---
-st.markdown("""
-<div class="footer">
-    © 2026 N.R. TRADERS. All Rights Reserved. | Official Business Portal
-</div>
-""", unsafe_allow_html=True)
+        function logout() {
+            document.getElementById('dashboard').style.display = 'none';
+            document.getElementById('login-screen').style.display = 'flex';
+        }
+    </script>
+</body>
+</html>
