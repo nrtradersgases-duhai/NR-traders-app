@@ -7,7 +7,7 @@ import json
 # PAGE CONFIGURATION ---
 st.set_page_config( 
 page_title="N R TRADERS - Gas Ordering & CRM", 
-page_icon="ðŸ›¢ï¸", 
+page_icon="N R TRADERS", 
 layout="wide", 
 initial_sidebar_state="expanded" 
 )
@@ -238,14 +238,14 @@ GAS_SPECS = {
 }
 
 # LOGIN / AUTHENTICATION SIDEBAR ---
-st.sidebar.markdown("### ðŸ” User Login & Authentication")
+st.sidebar.markdown("User Login & Authentication")
 
 if st.session_state.logged_in_user is None: 
     st.sidebar.info("Please login to access your confidential party dashboard.") 
 with st.sidebar.form("login_form"): 
     login_id = st.text_input("User ID / Party ID:").strip().lower() 
 login_pass = st.text_input("Password:", type="password") 
-submit_login = st.form_submit_button("ðŸ”“ Login")
+submit_login = st.form_submit_button ("Login")
 
 if submit_login:
         if login_id in st.session_state.users_db and st.session_state.users_db[login_id]["password"] == login_pass:
