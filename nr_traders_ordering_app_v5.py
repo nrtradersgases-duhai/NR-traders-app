@@ -40,14 +40,6 @@ st.markdown("""
         margin-bottom: 12px;
         box-shadow: 0 2px 5px rgba(0,0,0,0.15);
     }
-    .badge-count {
-        background-color: #E53935;
-        color: white;
-        padding: 2px 8px;
-        border-radius: 12px;
-        font-size: 13px;
-        font-weight: bold;
-    }
     .card-filled {
         background-color: #E8F5E9;
         border-left: 6px solid #2E7D32;
@@ -92,78 +84,26 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# USER DATABASE (CUSTOM PASSWORDS FOR ADMIN & PARTIES) ---
+# USER DATABASE (ONLY ADMIN - NO DUMMY PARTIES) ---
 if "users_db" not in st.session_state: 
     st.session_state.users_db = { 
         "admin": { 
-            "password": "admin123", 
+            "password": "admin", 
             "role": "admin", 
             "name": "Mr. Nitin Sharma (Owner)", 
             "company": "N R TRADERS" 
-        }, 
-        "ar_fabtech": { 
-            "password": "party123", 
-            "role": "party", 
-            "name": "AR Fabtech Innovation", 
-            "company": "AR Fabtech Innovation", 
-            "address": "Site 4 Industrial Area, Sahibabad, Ghaziabad" 
-        }, 
-        "shree_ji": { 
-            "password": "shree123", 
-            "role": "party", 
-            "name": "Shree Ji Coil Solution", 
-            "company": "SHREE JI COIL SOLUTION", 
-            "address": "Duhai Industrial Area, Ghaziabad" 
-        } 
+        }
     }
 
-# INITIAL SESSION STATE DATA ---
+# INITIAL DATA (CLEAN LISTS - NO DUMMY ORDERS OR BILLS) ---
 if "logged_in_user" not in st.session_state: 
     st.session_state.logged_in_user = None
 
-if "google_drive_synced" not in st.session_state: 
-    st.session_state.google_drive_synced = True
-
 if "orders" not in st.session_state: 
-    st.session_state.orders = [ 
-        { 
-            "order_id": "NRT-ORD-2026-101", 
-            "party_id": "ar_fabtech", 
-            "party_name": "AR Fabtech Innovation", 
-            "timestamp": "2026-10-07 16:50", 
-            "filled_items": [ 
-                {"Gas Type": "Oxygen (O2)", "Category / Size": "Standard (7 m³)", "Quantity": 12}, 
-                {"Gas Type": "Argon (Ar)", "Category / Size": "10 cubic metres", "Quantity": 5} 
-            ], 
-            "empty_items": [ 
-                {"Gas Type": "Oxygen (O2)", "Category / Size": "Standard (7 m³)", "Quantity": 10}, 
-                {"Gas Type": "Argon (Ar)", "Category / Size": "10 cubic metres", "Quantity": 3} 
-            ], 
-            "status": "Accepted", 
-            "eta": "45 Mins (Delivery by 17:35)", 
-            "vehicle": "BOLERO UP14LT6202" 
-        } 
-    ]
+    st.session_state.orders = []
 
 if "bills" not in st.session_state: 
-    st.session_state.bills = [ 
-        { 
-            "bill_no": "2026-27/161", 
-            "party_id": "shree_ji", 
-            "party_name": "SHREE JI COIL SOLUTION", 
-            "date": "2026-09-15", 
-            "amount": 14603.00, 
-            "unread": True, 
-            "items": [ 
-                {"Gas": "Oxygen Gas (O2)", "HSN": "28044090", "Qty": 15, "Rate": 350, "Taxable Amount": 5250}, 
-                {"Gas": "CO2 Gas (Commercial 45kg)", "HSN": "28112190", "Qty": 8, "Rate": 800, "Taxable Amount": 6400}, 
-                {"Gas": "Freight & Transport", "HSN": "996511", "Qty": 1, "Rate": 725, "Taxable Amount": 725} 
-            ], 
-            "cgst": 1113.75, 
-            "sgst": 1113.75, 
-            "vehicle": "BOLERO UP14LT6202" 
-        } 
-    ]
+    st.session_state.bills = []
 
 if "cart_filled" not in st.session_state: 
     st.session_state.cart_filled = []
@@ -171,7 +111,7 @@ if "cart_filled" not in st.session_state:
 if "cart_empty" not in st.session_state: 
     st.session_state.cart_empty = []
 
-# GAS SPECIFICATIONS & COLOUR CODES ---
+# GAS SPECIFICATIONS ---
 GAS_SPECS = { 
     "Oxygen (O2)": { 
         "bg_color": "#1A1A1A", 
@@ -223,7 +163,7 @@ GAS_SPECS = {
     } 
 }
 
-# SIDEBAR: CONTACT INFO & GAS CYLINDER CATALOG ---
+# SIDEBAR ---
 if st.session_state.logged_in_user is not None:
     u_info = st.session_state.users_db[st.session_state.logged_in_user] 
     st.sidebar.success(f"Logged in as: {u_info['name']}") 
@@ -252,9 +192,9 @@ for gas_name, spec in GAS_SPECS.items():
     </div>
     """, unsafe_allow_html=True)
 
-# MAIN APPLICATION DISPLAY ---
+# MAIN DISPLAY ---
 if st.session_state.logged_in_user is None:
-    # PUBLIC VIEW / MAIN LANDING PAGE WITH CENTERED RED HEADER & LOGIN
+    # PUBLIC VIEW: CENTERED RED HEADER & LOGIN
     st.markdown("""
     <div class="main-header">
         <h1 style="margin:0; font-size: 36px; letter-spacing: 1px;">🏭 N R TRADERS</h1>
@@ -270,14 +210,13 @@ if st.session_state.logged_in_user is None:
     </div>
     """, unsafe_allow_html=True)
 
-    # CENTERED LOGIN SECTION
     col_l1, col_center, col_l2 = st.columns([1, 2, 1])
     with col_center:
         st.markdown("<h3 style='text-align: center; color: #8B0000;'>🔐 User Login & Authentication</h3>", unsafe_allow_html=True)
-        st.caption("<div style='text-align: center;'>Select your account role and enter credentials to access your private portal.</div>", unsafe_allow_html=True)
+        st.caption("<div style='text-align: center;'>Select role and enter credentials to access portal.</div>", unsafe_allow_html=True)
         
         with st.form("centered_login_form"):
-            login_role = st.selectbox("Account Role:", ["Party / Customer Login", "Admin / Owner Login"])
+            login_role = st.selectbox("Account Role:", ["Admin / Owner Login", "Party / Customer Login"])
             login_id = st.text_input("User ID / Party ID:").strip().lower()
             login_pass = st.text_input("Password:", type="password")
             submit_login = st.form_submit_button("🔑 Login to Portal", use_container_width=True)
@@ -302,7 +241,7 @@ if st.session_state.logged_in_user is None:
     st.info("🔒 **Confidentiality Notice:** Every party's orders, ledger, and tax invoices are strictly isolated and password-protected.")
 
 else:
-    # LOGGED IN VIEWS
+    # LOGGED IN PORTALS
     st.markdown("""
     <div class="main-header" style="padding: 16px;">
         <h2 style="margin:0;">🏭 N R TRADERS - Portal</h2>
@@ -310,12 +249,12 @@ else:
     </div>
     """, unsafe_allow_html=True)
 
-    # PORTAL 1: PARTY / CUSTOMER
+    # 1. PARTY VIEW
     if st.session_state.users_db[st.session_state.logged_in_user]["role"] == "party":
         curr_user_id = st.session_state.logged_in_user 
         curr_user_info = st.session_state.users_db[curr_user_id]
 
-        party_bills = [b for b in st.session_state.bills if b.get("party_id") == curr_user_id or b.get("party_name") == curr_user_info["company"]]
+        party_bills = [b for b in st.session_state.bills if b.get("party_id") == curr_user_id]
         unread_bills_count = sum(1 for b in party_bills if b.get("unread", False))
         bill_tab_label = f"📄 View Bills & Download Invoices (🔴 {unread_bills_count} New)" if unread_bills_count > 0 else "📄 View Bills & Download Invoices"
 
@@ -323,22 +262,20 @@ else:
 
         with tab1:
             st.subheader("📝 Order Gas Cylinders & Report Empty Cylinders")
-            st.caption(f"Logged in Party: **{curr_user_info['company']}** | Data strictly private & auto-synced to Google Drive.")
-            
             c_p1, c_p2 = st.columns(2)
             with c_p1:
                 st.text_input("🏢 Party / Customer Name:", value=curr_user_info["company"], disabled=True)
             with c_p2:
-                party_address = st.text_input("📍 Delivery Address / Location:", value=curr_user_info.get("address", "Sahibabad / Ghaziabad"))
+                party_address = st.text_input("📍 Delivery Address / Location:", value=curr_user_info.get("address", ""))
                 
             st.markdown("---")
             col_filled, col_empty = st.columns(2)
             
             with col_filled:
-                st.markdown("<div class='card-filled'><h3>🟢 FILLED CYLINDERS REQUIRED</h3><p>Select required gas type, size & quantity:</p></div>", unsafe_allow_html=True)
+                st.markdown("<div class='card-filled'><h3>🟢 FILLED CYLINDERS REQUIRED</h3></div>", unsafe_allow_html=True)
                 fgas = st.selectbox("Select Gas Type (Filled):", list(GAS_SPECS.keys()), key="f_gas_sel")
                 fcat = st.selectbox("Select Category / Size:", GAS_SPECS[fgas]["categories"], key="f_cat_sel")
-                fqty = st.number_input("Enter Number of Cylinders:", min_value=1, max_value=500, value=5, step=1, key="f_qty_sel")
+                fqty = st.number_input("Enter Number of Cylinders:", min_value=1, max_value=500, value=1, step=1, key="f_qty_sel")
                 
                 if st.button("➕ Add Filled Cylinder Item"):
                     st.session_state.cart_filled.append({
@@ -346,20 +283,20 @@ else:
                         "Category / Size": fcat,
                         "Quantity": fqty
                     })
-                    st.success(f"Added {fqty} x {fgas} ({fcat}) to Filled Order List!")
+                    st.success(f"Added {fqty} x {fgas} to List!")
                     
                 if st.session_state.cart_filled:
-                    st.markdown("**🛒 Current Filled Cylinders Order List:**")
+                    st.markdown("**🛒 Current Filled Cylinders List:**")
                     st.dataframe(pd.DataFrame(st.session_state.cart_filled), use_container_width=True)
                     if st.button("🗑️ Clear Filled List"):
                         st.session_state.cart_filled = []
                         st.rerun()
 
             with col_empty:
-                st.markdown("<div class='card-empty'><h3>🔴 EMPTY CYLINDERS AT SITE</h3><p>Report empty cylinders ready for pickup:</p></div>", unsafe_allow_html=True)
+                st.markdown("<div class='card-empty'><h3>🔴 EMPTY CYLINDERS AT SITE</h3></div>", unsafe_allow_html=True)
                 egas = st.selectbox("Select Gas Type (Empty):", list(GAS_SPECS.keys()), key="e_gas_sel")
                 ecat = st.selectbox("Select Category / Size (Empty):", GAS_SPECS[egas]["categories"], key="e_cat_sel")
-                eqty = st.number_input("Enter Number of Empty Cylinders:", min_value=0, max_value=500, value=3, step=1, key="e_qty_sel")
+                eqty = st.number_input("Enter Number of Empty Cylinders:", min_value=0, max_value=500, value=1, step=1, key="e_qty_sel")
                 
                 if st.button("➕ Add Empty Cylinder Item"):
                     st.session_state.cart_empty.append({
@@ -367,10 +304,10 @@ else:
                         "Category / Size": ecat,
                         "Quantity": eqty
                     })
-                    st.success(f"Reported {eqty} x {egas} ({ecat}) empty cylinders at site!")
+                    st.success(f"Reported {eqty} x {egas} empty cylinders!")
                     
                 if st.session_state.cart_empty:
-                    st.markdown("**📦 Current Empty Cylinders Pickup List:**")
+                    st.markdown("**📦 Current Empty Cylinders List:**")
                     st.dataframe(pd.DataFrame(st.session_state.cart_empty), use_container_width=True)
                     if st.button("🗑️ Clear Empty List"):
                         st.session_state.cart_empty = []
@@ -381,7 +318,7 @@ else:
                 if not st.session_state.cart_filled and not st.session_state.cart_empty:
                     st.error("Please add at least one filled cylinder or empty cylinder item before submitting!")
                 else:
-                    new_ord_id = f"NRT-ORD-2026-{len(st.session_state.orders) + 102}"
+                    new_ord_id = f"NRT-ORD-{len(st.session_state.orders) + 101}"
                     new_order = {
                         "order_id": new_ord_id,
                         "party_id": curr_user_id,
@@ -390,7 +327,7 @@ else:
                         "filled_items": st.session_state.cart_filled.copy(),
                         "empty_items": st.session_state.cart_empty.copy(),
                         "status": "Pending Confirmation",
-                        "eta": "Awaiting N R TRADERS Confirmation",
+                        "eta": "Awaiting Confirmation",
                         "vehicle": "To be assigned"
                     }
                     st.session_state.orders.insert(0, new_order)
@@ -398,219 +335,202 @@ else:
                     st.session_state.cart_empty = []
                     st.balloons()
                     st.success(f"✅ Order #{new_ord_id} Submitted Successfully!")
-                    st.info("📲 Instant alert sent to Mr. Nitin Sharma (+91 9999734204). Auto-backed up to Google Drive.")
 
             st.markdown("---")
-            st.subheader("📋 Order History & Backup Download for Party")
-            my_orders = [o for o in st.session_state.orders if o.get("party_id") == curr_user_id or o.get("party_name") == curr_user_info["company"]]
-            
+            st.subheader("📋 Order History")
+            my_orders = [o for o in st.session_state.orders if o.get("party_id") == curr_user_id]
             if my_orders:
                 for ord_item in my_orders:
                     st.markdown(f"#### 📦 Order #{ord_item['order_id']} ({ord_item['timestamp']})")
-                    st.markdown(f"**Status:** `{ord_item['status']}` | **Estimated Delivery Time:** `{ord_item['eta']}`")
+                    st.markdown(f"**Status:** `{ord_item['status']}` | **ETA:** `{ord_item['eta']}`")
                     b1, b2 = st.columns(2)
                     with b1:
                         if ord_item['filled_items']:
-                            st.markdown("🟢 **Filled Cylinders:**")
+                            st.write("🟢 **Filled Cylinders:**")
                             st.dataframe(pd.DataFrame(ord_item['filled_items']), use_container_width=True)
                     with b2:
                         if ord_item['empty_items']:
-                            st.markdown("🔴 **Empty Cylinders:**")
+                            st.write("🔴 **Empty Cylinders:**")
                             st.dataframe(pd.DataFrame(ord_item['empty_items']), use_container_width=True)
-                    
-                    backup_data = json.dumps(ord_item, indent=2)
-                    st.download_button(
-                        label=f"📥 Download Order Backup Receipt (#{ord_item['order_id']})",
-                        data=backup_data,
-                        file_name=f"{ord_item['order_id']}_receipt.json",
-                        mime="application/json",
-                        key=f"dl_ord_{ord_item['order_id']}"
-                    )
                     st.markdown("---")
             else:
-                st.write("No previous orders found.")
+                st.info("No orders placed yet.")
 
         with tab2:
-            st.subheader("📄 GST Tax Invoices & Download Ledger")
-            st.caption("View and download official GST tax invoices issued by N R TRADERS.")
+            st.subheader("📄 GST Tax Invoices")
             if party_bills:
                 for b_idx, bill in enumerate(party_bills):
                     if bill.get("unread", False):
                         st.session_state.bills[b_idx]["unread"] = False
-                        
                     st.markdown(f"""
                     <div class="bill-box">
                         <h3 style="margin:0; color:#8B0000;">🧾 Tax Invoice #{bill['bill_no']}</h3>
-                        <p style="margin:3px 0;"><b>Date:</b> {bill['date']} | <b>Billed To:</b> {bill['party_name']} | <b>Vehicle:</b> {bill['vehicle']}</p>
-                        <p style="margin:3px 0; font-size: 18px;"><b>Grand Total Amount:</b> <span style="color:#2E7D32; font-weight:bold;">₹{bill['amount']:,.2f}</span></p>
+                        <p style="margin:3px 0;"><b>Date:</b> {bill['date']} | <b>Grand Total:</b> ₹{bill['amount']:,.2f} | <b>Vehicle:</b> {bill['vehicle']}</p>
                     </div>
                     """, unsafe_allow_html=True)
-                    
-                    with st.expander(f"🔍 View Breakdown & Download Invoice (#{bill['bill_no']})"):
-                        st.markdown(f"**Supplier:** N R TRADERS (GSTIN: `09MHSPS5749H1Z3` | MSME: `UDYAM-UP-29-0162343`)")
-                        st.markdown(f"**Recipient:** {bill['party_name']}")
-                        st.dataframe(pd.DataFrame(bill['items']), use_container_width=True)
-                        
-                        mc1, mc2, mc3 = st.columns(3)
-                        mc1.metric("CGST (9%)", f"₹{bill['cgst']:,.2f}")
-                        mc2.metric("SGST (9%)", f"₹{bill['sgst']:,.2f}")
-                        mc3.metric("Grand Total", f"₹{bill['amount']:,.2f}")
-                        
-                        inv_df = pd.DataFrame(bill['items'])
-                        csv_buffer = io.StringIO()
-                        inv_df.to_csv(csv_buffer, index=False)
-                        st.download_button(
-                            label=f"📥 Download Tax Invoice Statement (#{bill['bill_no']})",
-                            data=csv_buffer.getvalue(),
-                            file_name=f"NR_TRADERS_Invoice_{bill['bill_no'].replace('/', '_')}.csv",
-                            mime="text/csv",
-                            key=f"dl_bill_{bill['bill_no']}"
-                        )
             else:
-                st.info("No tax invoices issued for your account yet.")
+                st.info("No tax invoices issued yet.")
 
         with tab3:
-            st.subheader("📞 Help & Support - N R TRADERS")
-            hc1, hc2 = st.columns(2)
-            with hc1:
-                st.markdown("""
-                ### 📲 Contact Numbers
-                * **Call:** +91 9999734204
-                * **Call:** +91 8130853589
-                * **Email:** nrtraders.gases@gmail.com
-                * **Owner:** Mr. Nitin Sharma
-                """)
-            with hc2:
-                st.markdown("""
-                ### 📍 Office & Godown Address
-                * **N R TRADERS**
-                * Panchal Market, Duhai Industrial Area,
-                * Duhai, Ghaziabad, Uttar Pradesh - 201206
-                * **GSTIN:** `09MHSPS5749H1Z3`
-                * **MSME Reg:** `UDYAM-UP-29-0162343`
-                """)
+            st.subheader("📞 Help & Support")
+            st.markdown("""
+            * **Call:** +91 9999734204 / +91 8130853589
+            * **Email:** nrtraders.gases@gmail.com
+            * **Godown Address:** Panchal Market, Duhai Industrial Area, Ghaziabad
+            """)
 
-    # PORTAL 2: ADMIN / OWNER VIEW
+    # 2. ADMIN VIEW
     elif st.session_state.users_db[st.session_state.logged_in_user]["role"] == "admin":
-        st.subheader("⚙️ N R TRADERS Owner CRM & Dashboard") 
-        st.markdown("Monitor party orders in real-time, accept orders with Delivery ETA, manage party passwords, and sync data.")
+        st.subheader("⚙️ N R TRADERS Owner CRM & Management Dashboard")
 
-        admin_tab1, admin_tab2, admin_tab3 = st.tabs(["📥 Live Orders Queue & ETA Confirmation", "📤 Upload Tax Invoice to Party CRM", "🔐 User Security & Password Management"])
+        admin_tab1, admin_tab2, admin_tab3 = st.tabs([
+            "📥 Live Orders Queue", 
+            "📤 Upload Tax Invoices", 
+            "🔐 Party Account & Password Management"
+        ])
 
         with admin_tab1:
-            pending_list = [o for o in st.session_state.orders if o["status"] == "Pending Confirmation"]
-            if pending_list:
-                st.warning(f"🔔 **{len(pending_list)} NEW ORDER(S) RECEIVED!** Instant alert sent to Mr. Nitin Sharma (+91 9999734204). Auto-synced to Google Drive.")
-
             st.markdown("### 📥 Live Party Orders Queue")
-            for idx, ord_item in enumerate(st.session_state.orders):
-                st.markdown(f"#### 📦 Order #{ord_item['order_id']} - {ord_item['party_name']} ({ord_item['timestamp']})")
-                ca, cb = st.columns(2)
-                with ca:
-                    st.markdown("**🟢 FILLED CYLINDERS ORDERED:**")
-                    if ord_item["filled_items"]:
-                        st.dataframe(pd.DataFrame(ord_item["filled_items"]), use_container_width=True)
-                    else:
-                        st.write("None")
-                with cb:
-                    st.markdown("**🔴 EMPTY CYLINDERS REPORTED AT SITE:**")
-                    if ord_item["empty_items"]:
-                        st.dataframe(pd.DataFrame(ord_item["empty_items"]), use_container_width=True)
-                    else:
-                        st.write("None")
+            if not st.session_state.orders:
+                st.info("No live orders in the queue. Everything is clean.")
+            else:
+                for idx, ord_item in enumerate(st.session_state.orders):
+                    st.markdown(f"#### 📦 Order #{ord_item['order_id']} - {ord_item['party_name']} ({ord_item['timestamp']})")
+                    ca, cb = st.columns(2)
+                    with ca:
+                        st.markdown("**🟢 FILLED:**")
+                        if ord_item["filled_items"]:
+                            st.dataframe(pd.DataFrame(ord_item["filled_items"]), use_container_width=True)
+                    with cb:
+                        st.markdown("**🔴 EMPTY:**")
+                        if ord_item["empty_items"]:
+                            st.dataframe(pd.DataFrame(ord_item["empty_items"]), use_container_width=True)
 
-                if ord_item["status"] == "Pending Confirmation":
-                    st.markdown("**⚡ Order Action & Delivery ETA Confirmation:**")
-                    e1, e2, e3 = st.columns([2, 2, 2])
-                    with e1:
-                        selected_eta_opt = st.selectbox(
-                            "Select Estimated Delivery Time:",
-                            ["30 Mins", "45 Mins", "1 Hour", "1.5 Hours", "2 Hours", "Today Evening 5 PM", "Custom Time Input"],
-                            key=f"eta_opt_{ord_item['order_id']}"
-                        )
-                    with e2:
-                        if selected_eta_opt == "Custom Time Input":
-                            final_eta_val = st.text_input("Enter Delivery Time:", value="40 Mins", key=f"custom_eta_{ord_item['order_id']}")
-                        else:
-                            final_eta_val = selected_eta_opt
-                    with e3:
-                        assigned_vehicle_val = st.selectbox("Assign Supply Vehicle:", ["BOLERO UP14LT6202", "TEMPO UP14AT1122", "DIRECT GODOWN PICKUP"], key=f"v_sel_{ord_item['order_id']}")
-                        
-                    if st.button(f"✅ CONFIRM ORDER & SEND ESTIMATED TIME TO PARTY (#{ord_item['order_id']})", key=f"cbtn_{ord_item['order_id']}"):
-                        st.session_state.orders[idx]["status"] = "Accepted"
-                        st.session_state.orders[idx]["eta"] = final_eta_val
-                        st.session_state.orders[idx]["vehicle"] = assigned_vehicle_val
-                        st.success(f"Order #{ord_item['order_id']} Accepted with ETA: {final_eta_val}!")
-                        st.rerun()
-                else:
-                    st.markdown(f"<div class='status-confirmed'>✅ Accepted & Confirmed | Estimated Delivery Time: {ord_item['eta']} | Vehicle: {ord_item['vehicle']}</div>", unsafe_allow_html=True)
-                st.markdown("---")
+                    if ord_item["status"] == "Pending Confirmation":
+                        e1, e2, e3 = st.columns([2, 2, 2])
+                        with e1:
+                            selected_eta_opt = st.selectbox("Estimated Delivery Time:", ["30 Mins", "45 Mins", "1 Hour", "2 Hours", "Custom Time"], key=f"eta_{ord_item['order_id']}")
+                        with e2:
+                            final_eta = st.text_input("Confirm ETA:", value=selected_eta_opt, key=f"feta_{ord_item['order_id']}")
+                        with e3:
+                            assigned_veh = st.text_input("Vehicle:", value="BOLERO UP14LT6202", key=f"veh_{ord_item['order_id']}")
+                            
+                        if st.button(f"✅ Confirm Order #{ord_item['order_id']}", key=f"btn_{ord_item['order_id']}"):
+                            st.session_state.orders[idx]["status"] = "Accepted"
+                            st.session_state.orders[idx]["eta"] = final_eta
+                            st.session_state.orders[idx]["vehicle"] = assigned_veh
+                            st.success(f"Order #{ord_item['order_id']} Confirmed!")
+                            st.rerun()
+                    else:
+                        st.markdown(f"<div class='status-confirmed'>✅ Accepted | ETA: {ord_item['eta']} | Vehicle: {ord_item['vehicle']}</div>", unsafe_allow_html=True)
+                    st.markdown("---")
 
         with admin_tab2:
-            st.markdown("### 📤 Upload GST Invoice to Party View Bills CRM")
-            with st.form("crm_upload_invoice_form"):
-                u_party_id = st.selectbox("Select Party Account:", [uid for uid, uinfo in st.session_state.users_db.items() if uinfo["role"] == "party"])
-                u_inv_no = st.text_input("Tax Invoice Number:", value=f"2026-27/{len(st.session_state.bills) + 162}")
-                u_amount = st.number_input("Invoice Grand Total (₹):", value=11200.0)
-                u_veh = st.text_input("Vehicle Number:", value="BOLERO UP14LT6202")
-                
-                submit_invoice = st.form_submit_button("📤 Upload Invoice to Party App & Sync Google Drive")
-                if submit_invoice:
-                    party_comp_name = st.session_state.users_db[u_party_id]["company"]
-                    new_bill = {
-                        "bill_no": u_inv_no,
-                        "party_id": u_party_id,
-                        "party_name": party_comp_name,
-                        "date": datetime.datetime.now().strftime("%Y-%m-%d"),
-                        "amount": u_amount,
-                        "unread": True,
-                        "items": [
-                            {"Gas": "Oxygen / Argon / CO2 Supply", "HSN": "28044090", "Qty": 15, "Rate": 600, "Taxable Amount": 9000},
-                            {"Gas": "Freight Charges", "HSN": "996511", "Qty": 1, "Rate": 491.52, "Taxable Amount": 491.52}
-                        ],
-                        "cgst": round(u_amount * 0.09 / 1.18, 2),
-                        "sgst": round(u_amount * 0.09 / 1.18, 2),
-                        "vehicle": u_veh
-                    }
-                    st.session_state.bills.insert(0, new_bill)
-                    st.success(f"Invoice #{u_inv_no} uploaded for {party_comp_name}!")
+            st.markdown("### 📤 Create / Upload Tax Invoice")
+            party_users = [uid for uid, uinfo in st.session_state.users_db.items() if uinfo["role"] == "party"]
+            
+            if not party_users:
+                st.warning("No Party accounts found. Create a Party Account in tab 3 first.")
+            else:
+                with st.form("admin_invoice_form", clear_on_submit=True):
+                    u_party = st.selectbox("Select Party:", party_users)
+                    u_inv_no = st.text_input("Invoice Number:", value=f"2026-27/{len(st.session_state.bills) + 1}")
+                    u_amt = st.number_input("Total Amount (₹):", min_value=0.0, value=0.0, step=100.0)
+                    u_vehicle = st.text_input("Vehicle No:", value="BOLERO UP14LT6202")
+                    
+                    if st.form_submit_button("📤 Issue Invoice to Party"):
+                        p_name = st.session_state.users_db[u_party]["company"]
+                        new_bill = {
+                            "bill_no": u_inv_no,
+                            "party_id": u_party,
+                            "party_name": p_name,
+                            "date": datetime.datetime.now().strftime("%Y-%m-%d"),
+                            "amount": u_amt,
+                            "unread": True,
+                            "vehicle": u_vehicle
+                        }
+                        st.session_state.bills.insert(0, new_bill)
+                        st.success(f"Invoice #{u_inv_no} issued to {p_name}!")
+                        st.rerun()
 
         with admin_tab3:
-            st.markdown("### 🔐 User Security & Password Management")
-            st.caption("Manage party accounts, set custom passwords, or register new parties.")
+            st.markdown("### 🔐 Party Management (Create, Edit & Delete)")
             
-            st.markdown("#### ➕ Create New Party Account")
-            with st.form("create_user_form"):
-                nu_id = st.text_input("New Party Username / ID (e.g., `national_steel`):").strip().lower()
-                nu_name = st.text_input("Party Representative Name:")
-                nu_comp = st.text_input("Company / Firm Name:")
-                nu_pass = st.text_input("Assign Password:")
-                nu_addr = st.text_input("Delivery Address:")
+            # 1. CREATE NEW PARTY
+            st.markdown("#### ➕ Add New Party")
+            with st.form("add_party_form", clear_on_submit=True):
+                p_uid = st.text_input("Party User ID (Username):").strip().lower()
+                p_comp = st.text_input("Company / Firm Name:")
+                p_rep = st.text_input("Representative / Contact Person Name:")
+                p_pwd = st.text_input("Set Password:")
+                p_addr = st.text_input("Delivery / Plant Address:")
                 
-                submit_new_user = st.form_submit_button("🔑 Register New Party Account")
-                if submit_new_user:
-                    if nu_id in st.session_state.users_db:
-                        st.error("Username already exists!")
-                    elif not nu_id or not nu_pass or not nu_comp:
-                        st.error("Please fill in Username, Company Name, and Password!")
+                if st.form_submit_button("➕ Register Party"):
+                    if not p_uid or not p_comp or not p_pwd:
+                        st.error("User ID, Company Name और Password भरना अनिवार्य है!")
+                    elif p_uid in st.session_state.users_db:
+                        st.error("यह User ID पहले से मौजूद है! कृपया दूसरी चुनें।")
                     else:
-                        st.session_state.users_db[nu_id] = {
-                            "password": nu_pass,
+                        st.session_state.users_db[p_uid] = {
+                            "password": p_pwd,
                             "role": "party",
-                            "name": nu_name if nu_name else nu_comp,
-                            "company": nu_comp,
-                            "address": nu_addr
+                            "name": p_rep if p_rep else p_comp,
+                            "company": p_comp,
+                            "address": p_addr
                         }
-                        st.success(f"Party account `{nu_id}` created successfully for **{nu_comp}**!")
+                        st.success(f"पार्टी '{p_comp}' सफलतापूर्वक जोड़ दी गई!")
+                        st.rerun()
 
             st.markdown("---")
-            st.markdown("#### 📋 Registered Accounts & Active Passwords Ledger")
-            user_list_data = []
+
+            # 2. EDIT EXISTING PARTY
+            st.markdown("#### ✏️ Edit Existing Party Details")
+            parties_list = [uid for uid, uinfo in st.session_state.users_db.items() if uinfo["role"] == "party"]
+            if parties_list:
+                selected_edit_party = st.selectbox("Select Party to Edit:", parties_list)
+                curr_data = st.session_state.users_db[selected_edit_party]
+                
+                with st.form("edit_party_form"):
+                    edit_comp = st.text_input("Company Name:", value=curr_data.get("company", ""))
+                    edit_name = st.text_input("Contact Person:", value=curr_data.get("name", ""))
+                    edit_pwd = st.text_input("Password:", value=curr_data.get("password", ""))
+                    edit_addr = st.text_input("Address:", value=curr_data.get("address", ""))
+                    
+                    if st.form_submit_button("💾 Save Changes"):
+                        st.session_state.users_db[selected_edit_party]["company"] = edit_comp
+                        st.session_state.users_db[selected_edit_party]["name"] = edit_name
+                        st.session_state.users_db[selected_edit_party]["password"] = edit_pwd
+                        st.session_state.users_db[selected_edit_party]["address"] = edit_addr
+                        st.success(f"Details for '{selected_edit_party}' updated!")
+                        st.rerun()
+            else:
+                st.info("No party accounts available to edit.")
+
+            st.markdown("---")
+
+            # 3. DELETE PARTY
+            st.markdown("#### 🗑️ Delete Party Account")
+            if parties_list:
+                del_party_id = st.selectbox("Select Party to Delete:", ["-- Select Party --"] + parties_list)
+                if st.button("❌ Permanently Delete Party", type="primary"):
+                    if del_party_id != "-- Select Party --":
+                        del st.session_state.users_db[del_party_id]
+                        st.success(f"Party '{del_party_id}' deleted successfully!")
+                        st.rerun()
+            else:
+                st.info("No party accounts available to delete.")
+
+            st.markdown("---")
+
+            # 4. ACTIVE USERS TABLE
+            st.markdown("#### 📋 All Active Accounts")
+            acc_list = []
             for uid, udata in st.session_state.users_db.items():
-                user_list_data.append({
+                acc_list.append({
                     "User ID": uid,
                     "Role": udata["role"].upper(),
-                    "Company / Name": udata["company"],
+                    "Company": udata["company"],
+                    "Contact Person": udata.get("name", ""),
                     "Password": udata["password"]
                 })
-            st.dataframe(pd.DataFrame(user_list_data), use_container_width=True)
+            st.dataframe(pd.DataFrame(acc_list), use_container_width=True)
