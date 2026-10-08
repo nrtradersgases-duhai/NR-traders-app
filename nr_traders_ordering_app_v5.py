@@ -247,7 +247,7 @@ with st.sidebar.form("login_form"):
 login_pass = st.text_input("Password:", type="password") 
 submit_login = st.form_submit_button("ðŸ”“ Login")
 
-    if submit_login:
+if submit_login:
         if login_id in st.session_state.users_db and st.session_state.users_db[login_id]["password"] == login_pass:
             st.session_state.logged_in_user = login_id
             st.sidebar.success(f"Welcome, {st.session_state.users_db[login_id]['name']}!")
