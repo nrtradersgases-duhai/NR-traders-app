@@ -776,7 +776,7 @@ with tab3:
         * **MSME Reg. No.:** `UDYAM-UP-29-0162343`
         """)
 
-PORTAL 2: N R TRADERS ADMIN & CRM DASHBOARD (OWNER VIEW)
+# PORTAL 2: N R TRADERS ADMIN & CRM DASHBOARD (OWNER VIEW)
 
 elif st.session_state.users_db[st.session_state.logged_in_user]["role"]  "admin": 
 st.subheader("âš™ï¸ N R TRADERS Owner CRM & User Password Management Portal") 
