@@ -566,7 +566,7 @@ st.warning("ðŸ”’ **Confidentiality Notice:** Every party's orders, ledger,
 
 # PORTAL 1: CUSTOMER / PARTY ORDERING PORTAL (LOGGED IN PARTY)
 
-elif st.session_state.users_db[st.session_state.logged_in_user]["role"]  "party": 
+elif st.session_state.users_db[st.session_state.logged_in_user]["role"] == "party": 
     curr_user_id = st.session_state.logged_in_user 
     curr_user_info = st.session_state.users_db[curr_user_id]
 
