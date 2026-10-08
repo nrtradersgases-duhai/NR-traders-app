@@ -564,7 +564,7 @@ for idx, (gas_name, spec) in enumerate(GAS_SPECS.items()):
 st.markdown("---")
 st.warning("ðŸ”’ **Confidentiality Notice:** Every party's orders, ledger, and tax invoices are password-protected and strictly isolated.")
 
-PORTAL 1: CUSTOMER / PARTY ORDERING PORTAL (LOGGED IN PARTY)
+# PORTAL 1: CUSTOMER / PARTY ORDERING PORTAL (LOGGED IN PARTY)
 
 elif st.session_state.users_db[st.session_state.logged_in_user]["role"]  "party": 
     curr_user_id = st.session_state.logged_in_user 
