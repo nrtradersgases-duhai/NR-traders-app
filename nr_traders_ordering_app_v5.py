@@ -245,7 +245,7 @@ if st.session_state.logged_in_user is None:
 with st.sidebar.form("login_form"): 
     login_id = st.text_input("User ID / Party ID:").strip().lower() 
 login_pass = st.text_input("Password:", type="password") 
-submit_login = st.sidebar.form_submit_button ("Login")
+    submit_login = st.sidebar.form_submit_button ("Login")
 
 if submit_login:
         if login_id in st.session_state.users_db and st.session_state.users_db[login_id]["password"] == login_pass:
